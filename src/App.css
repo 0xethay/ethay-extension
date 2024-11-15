@@ -1,0 +1,22 @@
+.App {
+  text-align: center;
+  width: 380px;
+  min-width: 400px;
+  background-color: white;
+  height: 680px;
+  overflow: scroll;
+  padding: 20px;
+}
+
+button {
+  background-color: #18181b;
+  border-radius: 5px;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.8;
+}

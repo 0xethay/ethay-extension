@@ -1,0 +1,22 @@
+{
+	"name": "Ethay Extension",
+	"description": "Ethay Extension",
+	"version": "0.1.0",
+	"manifest_version": 3,
+	"content_security_policy": {
+		"extension_pages": "script-src 'wasm-unsafe-eval' 'self'; object-src 'self' "
+	},
+	"action": {
+		"default_popup": "index.html",
+		"default_icon": {
+			"16": "/ethay.png",
+			"48": "/ethay.png",
+			"128": "/ethay.png"
+		}
+	},
+	"icons": {
+		"16": "/ethay.png",
+		"48": "/ethay.png",
+		"128": "/ethay.png"
+	}
+}
