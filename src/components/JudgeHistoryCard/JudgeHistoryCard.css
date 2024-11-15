@@ -17,7 +17,6 @@
 .judge-box {
   display: flex;
   align-items: center;
-  min-width: 600px;
   padding: 10px;
 }
 

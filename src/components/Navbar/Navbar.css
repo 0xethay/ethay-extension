@@ -16,7 +16,7 @@
 }
 
 .setting-icon {
-  width: 24px;
+  width: 20px;
   cursor: pointer;
 }
 
@@ -26,11 +26,24 @@
 }
 
 .back-icon {
-  width: 24px;
+  width: 20px;
   cursor: pointer;
 }
 
 .setting-header-text {
   color: var(--primary-color);
   padding-left: 8px;
+}
+
+.account-navbar {
+  display: flex;
+  justify-content: space-between;
+}
+
+.account-balance-box {
+  display: flex;
+}
+
+.account-balance-text {
+  color: var(--primary-color);
 }

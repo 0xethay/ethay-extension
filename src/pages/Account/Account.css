@@ -15,7 +15,8 @@
 }
 
 .account-header-text{
-    color: white;
+    color: var(--primary-color);
+    font-size: 24px;
     display: flex;
     font-weight: 800 !important;
 }

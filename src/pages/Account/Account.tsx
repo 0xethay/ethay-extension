@@ -10,7 +10,7 @@ const Account = ({ setPage, chainId }: { setPage: (page: string) => void, chainI
 
   return (
     <div className="account-container">
-      <Navbar action={"setting"} setPage={setPage} blockExplorerUrl={chainConfig[chainId as keyof typeof chainConfig].blockExplorerUrl} />
+      <Navbar action={"setting"} setPage={setPage} blockExplorerUrl={chainConfig[chainId as keyof typeof chainConfig].blockExplorerUrl} chainId={chainId} />
       <span className="account-header-text">Address</span>
       <textarea className="custom-text-area"></textarea>
         <button onClick={handleSignUpClick}>

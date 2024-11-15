@@ -92,7 +92,7 @@ const Home = ({ setPage, setChainId, chainId, web3auth }: { setPage: (page: stri
   }
   return (
     <div className="home-container">
-      <Navbar setPage={setPage} action="home" blockExplorerUrl={chainConfig[chainId as keyof typeof chainConfig].blockExplorerUrl} />
+      <Navbar setPage={setPage} action="home" blockExplorerUrl={chainConfig[chainId as keyof typeof chainConfig].blockExplorerUrl} chainId={chainId} />
       <div className="home-mode-buttons">
         <button
           className={
