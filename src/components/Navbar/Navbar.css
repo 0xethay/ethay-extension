@@ -1,0 +1,36 @@
+.navbar {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.navbar h1 {
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
+.account-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.setting-icon {
+  width: 24px;
+  cursor: pointer;
+}
+
+.setting-box {
+  display: flex;
+  align-items: center;
+}
+
+.back-icon {
+  width: 24px;
+  cursor: pointer;
+}
+
+.setting-header-text {
+  color: black;
+  padding-left: 8px;
+}
