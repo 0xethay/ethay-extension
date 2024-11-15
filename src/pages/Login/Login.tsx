@@ -124,6 +124,12 @@ const Login = ({ setPage, web3auth, setWeb3auth, chainId, setChainId, setWalletA
             <select name="chain" id="chain" onChange={handleChainChange}>
               <option value="84532">Base</option>
               <option value="11155111">Sepolia</option>
+              <option value="5003">Mantle Sepolia</option>
+              <option value="80002">Polygon Amoy</option>
+              <option value="25925">Bitkub Testnet</option>
+              <option value="296">Hedera Testnet</option>
+              <option value="48899">Zircuit Testnet</option>
+              <option value="545">Flow Testnet</option> 
             </select>
           </div>
           <div>

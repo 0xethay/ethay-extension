@@ -80,7 +80,7 @@ const TransactionCard = ({ tx, amount, when, id, address, status, name, blockExp
             justifyContent: "center",
           }}
         >
-          <button style={{ width: "100%" }}>Contract Seller</button>
+          <button style={{ width: "100%" }}>Contact Seller</button>
           <button style={{ width: "100%" }} onClick={handleReportClick}>Report</button>
         </div>
       </div>
