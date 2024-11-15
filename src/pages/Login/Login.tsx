@@ -35,8 +35,8 @@ const Login = ({ setPage, web3auth, setWeb3auth, chainId, setChainId, setWalletA
     localStorage.setItem("walletAddress", address || "");
     setWalletAddress(address || "");
     if (address) {
-      setPage("home");
       setIsLoading(false)
+      setPage("home");
     }
   }, [address]);
 
@@ -72,6 +72,7 @@ const Login = ({ setPage, web3auth, setWeb3auth, chainId, setChainId, setWalletA
           setProvider(web3auth.provider);
         }
         setWeb3auth(web3auth);
+        console.log('web3auth', web3auth)
 
         if (web3auth.connected) {
           setLoggedIn(true);
@@ -81,6 +82,7 @@ const Login = ({ setPage, web3auth, setWeb3auth, chainId, setChainId, setWalletA
             console.log(addresses);
             setAddress(addresses[0]);
             localStorage.setItem("walletAddress", addresses[0]);
+            setIsLoading(false)
             setPage("home");
           }
         }
@@ -92,7 +94,7 @@ const Login = ({ setPage, web3auth, setWeb3auth, chainId, setChainId, setWalletA
 
     init();
     if (window.innerWidth > 400) setIsFullPage(true);
-  }, []);
+  }, [web3auth]);
 
   const handleChainChange = (e: any) => {
     setChainId(e.target.value);
