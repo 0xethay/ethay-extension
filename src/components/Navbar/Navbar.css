@@ -31,6 +31,6 @@
 }
 
 .setting-header-text {
-  color: black;
+  color: var(--primary-color);
   padding-left: 8px;
 }

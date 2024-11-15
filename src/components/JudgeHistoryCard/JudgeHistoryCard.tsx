@@ -85,7 +85,7 @@ const JudgeHistoryCard: React.FC<JudgeHistoryCardProps> = ({
                         justifyContent: "center",
                     }}
                 >
-                    <button style={{ width: "100%", backgroundColor: status !== 'success' ? 'gray' : 'black', cursor: status !== 'success' ? 'not-allowed' : 'pointer' }} onClick={onClaim} disabled={status !== 'success'}>Claim</button>
+                    <button style={{ width: "100%", backgroundColor: status !== 'success' ? 'gray' : 'var(--primary-color)', cursor: status !== 'success' ? 'not-allowed' : 'pointer' }} onClick={onClaim} disabled={status !== 'success'}>Claim</button>
                 </div>
             </div>
         </div>

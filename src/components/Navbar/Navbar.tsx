@@ -29,7 +29,7 @@ const Navbar = ({ setPage, action, blockExplorerUrl }: { setPage: (page: string)
         </div>
       ) : (
         <div className="account-box">
-          <h4 style={{ color: "black", display: "flex", alignItems: "center" }}>{walletAddress} <img src={externalLinkIcon} style={{ width: "12px", height: "12px", cursor: "pointer" }} alt="external-link-icon" className="external-link-icon" onClick={() => window.open(blockExplorerUrl + "address/" + walletAddress, "_blank")} /></h4>
+          <h4 style={{ color: "var(--primary-color)", display: "flex", alignItems: "center" }}>{walletAddress} <img src={externalLinkIcon} style={{ width: "12px", height: "12px", cursor: "pointer" }} alt="external-link-icon" className="external-link-icon" onClick={() => window.open(blockExplorerUrl + "address/" + walletAddress, "_blank")} /></h4>
           <div onClick={handleClick}>
             <img
               src={settingIcon}

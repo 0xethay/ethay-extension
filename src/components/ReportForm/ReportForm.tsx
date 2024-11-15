@@ -3,7 +3,7 @@ import "./ReportForm.css";
 const ReportForm = ({ setPage }: { setPage: (page: string) => void }) => {
     return (
         <>
-            <h1>ReportForm</h1>
+            <h1 className="report-form-title">ReportForm</h1>
             <div className="report-form-container">
                 <label className="report-form-label">Subject</label>
                 <input type="text" placeholder="Subject" className="report-form-input" />

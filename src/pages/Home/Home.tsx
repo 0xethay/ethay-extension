@@ -118,7 +118,7 @@ const Home = ({ setPage, setChainId, chainId, web3auth }: { setPage: (page: stri
           }
           onClick={() => setMode("history")}
         >
-          History
+          Report History
         </button>
       </div>
       {isLoading ? (
@@ -130,7 +130,7 @@ const Home = ({ setPage, setChainId, chainId, web3auth }: { setPage: (page: stri
               <TransactionCartCard key={product.id} {...product} amount="1" handleRemoveClick={() => handleRemoveClick(product.id)} />
             ))
           ) : (
-            <h1 style={{ color: "black" }}>No products</h1>
+            <h1 style={{ color: "var(--primary-color)" }}>No products</h1>
           )}
           <button style={{ width: "100%" }}>Checkout</button>
           <button style={{ width: "100%" }} onClick={getExtensionData}>log</button>
@@ -142,7 +142,7 @@ const Home = ({ setPage, setChainId, chainId, web3auth }: { setPage: (page: stri
               <TransactionCard key={transaction.id} {...transaction} image={transaction.image} blockExplorerUrl={chainConfig[chainId as keyof typeof chainConfig].blockExplorerUrl} handleReportClick={handleReportClick} />
             ))
           ) : (
-            <h1 style={{ color: "black" }}>No transactions</h1>
+            <h1 style={{ color: "var(--primary-color)" }}>No transactions</h1>
           )}
         </div>
       ) : (
@@ -152,7 +152,7 @@ const Home = ({ setPage, setChainId, chainId, web3auth }: { setPage: (page: stri
               <JudgeHistoryCard key={history.id} {...history} />
             ))
           ) : (
-            <h1 style={{ color: "black" }}>No History</h1>
+            <h1 style={{ color: "var(--primary-color)" }}>No History</h1>
           )}
         </div>
       )}
