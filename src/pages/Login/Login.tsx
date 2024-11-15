@@ -96,6 +96,20 @@ const Login = ({ setPage, web3auth, setWeb3auth, chainId, setChainId, setWalletA
     if (window.innerWidth > 400) setIsFullPage(true);
   }, []);
 
+  useEffect(() => {
+    const handleExtensionResponse = (event: any) => {
+      if (event.data.type && event.data.type === "FROM_EXTENSION") {
+        console.log("Response from extension:", event.data.response);
+      }
+    };
+
+    window.addEventListener("message", handleExtensionResponse);
+
+    return () => {
+      window.removeEventListener("message", handleExtensionResponse);
+    };
+  }, []);
+
   const handleChainChange = (e: any) => {
     setChainId(e.target.value);
   }

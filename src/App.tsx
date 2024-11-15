@@ -5,7 +5,7 @@ import Home from "./pages/Home/Home";
 import Account from "./pages/Account/Account";
 import Report from "./pages/Report/Report";
 function App() {
-  const [page, setPage] = useState("home");
+  const [page, setPage] = useState("");
   const [chainId, setChainId] = useState("84532");
   const [web3auth, setWeb3auth] = useState(null);
   const [walletAddress, setWalletAddress] = useState<string>("");

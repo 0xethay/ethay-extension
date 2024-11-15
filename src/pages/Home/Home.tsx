@@ -4,6 +4,7 @@ import Navbar from "../../components/Navbar/Navbar";
 import { useState, useEffect } from "react";
 import loading from "../../icons/loading.svg"
 import TransactionCartCard from "../../components/TransactionCartCard/TransactionCartCard";
+import JudgeHistoryCard from "../../components/JudgeHistoryCard/JudgeHistoryCard";
 import { chainConfig } from "../../constant/constant";
 
 const Home = ({ setPage, setChainId, chainId, web3auth }: { setPage: (page: string) => void, setChainId: (chainId: string) => void, chainId: string, web3auth: any }) => {
@@ -11,6 +12,7 @@ const Home = ({ setPage, setChainId, chainId, web3auth }: { setPage: (page: stri
   const [transactions, setTransactions] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [products, setProducts] = useState<any[]>([]);
+  const [judgeHistory, setJudgeHistory] = useState<any[]>([]);
   
 
   useEffect(() => {
@@ -46,8 +48,31 @@ const Home = ({ setPage, setChainId, chainId, web3auth }: { setPage: (page: stri
         address: "0x1234567890abcdef",
       }
     ]
+    const mockJudgeHistory = [
+      {
+        image: "https://cdn.pixabay.com/photo/2020/09/28/04/44/hippopotamus-5608509_1280.jpg",
+        subject: "Who is the best judge?",
+        description: "I think the judge is the best",
+        productName: "Product 1",
+        price: "100",
+        date: "2024-01-01",
+        progress: 50,
+        status: "success",
+      },
+      {
+        image: "https://cdn.pixabay.com/photo/2020/09/28/04/44/hippopotamus-5608509_1280.jpg",
+        subject: "Who is the best judge?",
+        description: "I think the judge is the best",
+        productName: "Product 1",
+        price: "100",
+        date: "2024-01-01",
+        progress: 50,
+        status: "pending",
+      }
+    ]
     setProducts(mockProducts);
     setTransactions(mockTransactions);
+    setJudgeHistory(mockJudgeHistory);
     setIsLoading(false);
   }, []);
 
@@ -61,6 +86,10 @@ const Home = ({ setPage, setChainId, chainId, web3auth }: { setPage: (page: stri
     setPage("report");
   }
 
+  const getExtensionData = async () => {
+    const data = await (window as any).chrome.storage.local.get('extensionData');
+    console.log("Extension data:", data);
+  }
   return (
     <div className="home-container">
       <Navbar setPage={setPage} action="home" blockExplorerUrl={chainConfig[chainId as keyof typeof chainConfig].blockExplorerUrl} />
@@ -104,6 +133,7 @@ const Home = ({ setPage, setChainId, chainId, web3auth }: { setPage: (page: stri
             <h1 style={{ color: "black" }}>No products</h1>
           )}
           <button style={{ width: "100%" }}>Checkout</button>
+          <button style={{ width: "100%" }} onClick={getExtensionData}>log</button>
         </div>
       ) : mode === "order" ? (
         <div className="transaction-list">
@@ -117,7 +147,13 @@ const Home = ({ setPage, setChainId, chainId, web3auth }: { setPage: (page: stri
         </div>
       ) : (
         <div className="transaction-list">
-          <h1 style={{ color: "black" }}>No History</h1>
+          {judgeHistory.length > 0 ? (
+            judgeHistory.map((history: any) => (
+              <JudgeHistoryCard key={history.id} {...history} />
+            ))
+          ) : (
+            <h1 style={{ color: "black" }}>No History</h1>
+          )}
         </div>
       )}
     </div>
