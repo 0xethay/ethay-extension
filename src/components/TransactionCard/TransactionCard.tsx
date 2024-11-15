@@ -1,7 +1,7 @@
 import "./TransactionCard.css";
 import copyIcon from "../../icons/copy.png";
 
-const TransactionCard = ({ tx, amount, when, id, address, status, name, blockExplorerUrl }: { tx: string, amount: string, when: string, id: string, address: string, status: string, name: string, blockExplorerUrl: string }) => {
+const TransactionCard = ({ tx, amount, when, id, address, status, name, blockExplorerUrl, handleReportClick }: { tx: string, amount: string, when: string, id: string, address: string, status: string, name: string, blockExplorerUrl: string, handleReportClick: () => void }) => {
   const badgeColor =
     status === "success"
       ? "#34D399"
@@ -81,7 +81,7 @@ const TransactionCard = ({ tx, amount, when, id, address, status, name, blockExp
           }}
         >
           <button style={{ width: "100%" }}>Contract Seller</button>
-          <button style={{ width: "100%" }}>Report</button>
+          <button style={{ width: "100%" }} onClick={handleReportClick}>Report</button>
         </div>
       </div>
     </div>

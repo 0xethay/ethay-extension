@@ -57,6 +57,10 @@ const Home = ({ setPage, setChainId, chainId, web3auth }: { setPage: (page: stri
     setProducts(products.filter((product: any) => product.id !== id));
   }
 
+  const handleReportClick = () => {
+    setPage("report");
+  }
+
   return (
     <div className="home-container">
       <Navbar setPage={setPage} action="home" blockExplorerUrl={chainConfig[chainId as keyof typeof chainConfig].blockExplorerUrl} />
@@ -105,7 +109,7 @@ const Home = ({ setPage, setChainId, chainId, web3auth }: { setPage: (page: stri
         <div className="transaction-list">
           {transactions.length > 0 ? (
             transactions.map((transaction: any) => (
-              <TransactionCard key={transaction.id} {...transaction} image={transaction.image} blockExplorerUrl={chainConfig[chainId as keyof typeof chainConfig].blockExplorerUrl} />
+              <TransactionCard key={transaction.id} {...transaction} image={transaction.image} blockExplorerUrl={chainConfig[chainId as keyof typeof chainConfig].blockExplorerUrl} handleReportClick={handleReportClick} />
             ))
           ) : (
             <h1 style={{ color: "black" }}>No transactions</h1>

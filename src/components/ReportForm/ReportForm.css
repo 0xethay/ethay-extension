@@ -1,0 +1,48 @@
+.report-form-container{
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-width: 500px;
+    margin: 20px auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.report-form-input{
+    box-sizing: border-box;
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    transition: border-color 0.3s;
+}
+
+.report-form-input:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+.report-form-label{
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.report-form-button{
+    width: 100%;
+}
+
+.report-form-white-button{
+    width: 100%;
+    background-color: white;
+    color: black;
+    border: 1px solid black;
+}
+
+.report-form-white-button:hover {
+    background-color: black;
+    color: white;
+    border: 1px solid white;
+    transition: background-color 0.3s, color 0.3s;
+}
