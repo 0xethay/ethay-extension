@@ -60,7 +60,7 @@ function checkForTags() {
         `
         // type is web2,web3
         if (typeAndValue.type === 'web2') {
-          iframe.src = `http://localhost:3000/product${
+          iframe.src = `https://ethaypostdev.vercel.app/product${
             queryString ? `?${queryString}` : ''
           }`
         } else {
