@@ -38,6 +38,48 @@ const TransactionCard = ({
     navigator.clipboard.writeText(tx);
   };
 
+  // Add after report
+  const setReported = async (id: string, address: string) => {
+    try {
+      const { data: currentOrder, error: fetchError } = await supabaseClient
+        .from('orders')
+        .select('status')
+        .eq('purchase_id', id)
+        .eq('buyer_id', address)
+        .single();
+
+      if (fetchError) {
+        alert(`Error: ${fetchError.message}`);
+        throw new Error(fetchError.message);
+      }
+
+      if (currentOrder.status !== 'received') {
+        alert('Order status must be "received" to set as "reported".');
+        throw new Error(
+          'Order status must be "received" to set as "reported".'
+        );
+      }
+
+      // Update status to received
+      const { data: order, error } = await supabaseClient
+        .from('orders')
+        .update({ status: 'reported' })
+        .eq('purchase_id', id)
+        .eq('buyer_id', address)
+        .select();
+
+      if (error) {
+        alert(`Error: ${error.message}`);
+        throw new Error(error.message);
+      }
+
+      alert('Order status updated to "reported".');
+      return order;
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const supabaseClient = new SupabaseClient(
     'https://awywwzfpjnyyvbboboyi.supabase.co',
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF3eXd3emZwam55eXZiYm9ib3lpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjc5OTY2MTksImV4cCI6MjA0MzU3MjYxOX0.lXFfWhUuACvTElH7X75rPIFVpwe9ylTGxUwhaxIha9M'
