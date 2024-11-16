@@ -10,6 +10,7 @@ import { gql, ApolloClient, InMemoryCache } from '@apollo/client';
 import { ethers } from "ethers";
 import { ethayContractAddress } from "../../constant/constant";
 import { parseEther } from "ethers";
+import { SupabaseClient } from "@supabase/supabase-js";
 
 const Home = ({ setPage, setChainId, chainId, web3auth }: { setPage: (page: string) => void, setChainId: (chainId: string) => void, chainId: string, web3auth: any }) => {
   const [mode, setMode] = useState("cart");
@@ -17,11 +18,200 @@ const Home = ({ setPage, setChainId, chainId, web3auth }: { setPage: (page: stri
   const [isLoading, setIsLoading] = useState(true);
   const [products, setProducts] = useState<any[]>([]);
   const [judgeHistory, setJudgeHistory] = useState<any[]>([]);
+  const [walletAddress, setWalletAddress] = useState<string>("");
 
   const graphClient = new ApolloClient({
     uri: 'https://api.studio.thegraph.com/query/54090/ethay/version/latest',
     cache: new InMemoryCache(),
   });
+
+  const supabaseClient = new SupabaseClient(
+    'https://awywwzfpjnyyvbboboyi.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF3eXd3emZwam55eXZiYm9ib3lpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjc5OTY2MTksImV4cCI6MjA0MzU3MjYxOX0.lXFfWhUuACvTElH7X75rPIFVpwe9ylTGxUwhaxIha9M'
+  );
+
+  useEffect(() => {
+    const addMembers = async () => {
+      const walletAddress = localStorage.getItem('walletAddress') || '';
+      if (walletAddress) {
+        const { data, error } = await supabaseClient
+          .from('members')
+          .select('*')
+          .eq('walletaddress', walletAddress)
+          .single();
+
+        if (error) {
+          const { data: newData, error: newError } = await supabaseClient
+            .from('members')
+            .insert([{ wallet_address: walletAddress }])
+            .select();
+          if (newError) {
+            throw new Error(newError.message);
+          }
+        }
+      }
+    };
+    addMembers();
+    const fetchOrders = async () => {
+      const walletAddress = localStorage.getItem('walletAddress') || '';
+      setWalletAddress(walletAddress);
+      if (walletAddress) {
+        try {
+          await listOrdersBuyer(walletAddress);
+        } catch (error) {
+          console.error('Error fetching orders:', error);
+        }
+      }
+    };
+
+    fetchOrders(); // Initial fetch
+
+  }, []);
+
+
+
+  async function listOrdersBuyer(walletAddress: string) {
+    const tokenQuery = `{
+      purchases(where: { buyer: "${walletAddress}" }) {
+        id
+        product {
+          id
+          name
+          price
+          quantity
+          isForSale
+          usdtBalance
+          ipfsLink
+          description
+          seller {
+            id
+            isSeller
+          }
+        }
+        buyer {
+          id
+          isSeller
+        }
+        transactions(where: { type: "PURCHASE" }) {
+         id
+          type
+        }
+        quantity
+        totalPrice
+        isConfirmed
+        purchaseTime
+        isDisputed
+        referrer {
+          id
+          isSeller
+          isJudge
+          referralRewards
+        }
+      }
+    }`;
+
+    const subgraph_data = await graphClient
+      .query({
+        query: gql(tokenQuery),
+      })
+      .then((data) => data)
+      .catch((err) => {
+        console.log('Error fetching data: ', err);
+        return null;
+      });
+
+    if (!subgraph_data) {
+      throw new Error('Failed to fetch subgraph data');
+    }
+
+    const { data: memberData, error: memberError } = await supabaseClient
+      .from('members')
+      .select('delivery_address')
+      .eq('wallet_address', walletAddress)
+      .single();
+
+    if (memberError) {
+      throw new Error(memberError.message);
+    }
+
+    const purchase = subgraph_data.data.purchases[0];
+    const purchaseTime = purchase.purchaseTime;
+    const deliveryAddress = memberData?.delivery_address;
+    const status = deliveryAddress
+      ? 'waiting_for_delivery'
+      : 'waiting_for_address';
+
+    const orderData = {
+      purchase_id: purchase.id,
+      product_id: purchase.product.id,
+      buyer_id: walletAddress,
+      seller_id: purchase.product.seller.id,
+      product_name: purchase.product.name,
+      order_date: purchaseTime
+        ? new Date(purchaseTime * 1000).toISOString()
+        : new Date().toISOString(),
+      totalPrice: parseInt(ethers.formatUnits(purchase.totalPrice, 18)),
+      quantity: purchase.quantity,
+      image: purchase.product.ipfsLink,
+      subgraph_data: purchase,
+      delivery_address: deliveryAddress || null,
+      status: status,
+      tx: purchase.transactions[0].id,
+    };
+
+    const { data: existingOrder, error: fetchError } = await supabaseClient
+      .from('orders')
+      .select('*')
+      .eq('purchase_id', orderData.purchase_id)
+      .single();
+
+    if (fetchError && fetchError.code !== 'PGRST116') {
+      throw new Error(fetchError.message);
+    }
+
+    if (existingOrder) {
+      if (
+        existingOrder.status === 'waiting_for_delivery' ||
+        existingOrder.status === 'waiting_for_address'
+      ) {
+        const { data: updatedOrder, error: updateError } = await supabaseClient
+          .from('orders')
+          .update(orderData)
+          .eq('purchase_id', orderData.purchase_id)
+          .select();
+
+        if (updateError) {
+          throw new Error(updateError.message);
+        }
+
+        return updatedOrder;
+      } else {
+        return existingOrder;
+      }
+    } else {
+      const { data, error } = await supabaseClient
+        .from('orders')
+        .insert([orderData])
+        .select();
+
+      if (error) {
+        throw new Error(error.message);
+      }
+    }
+
+    const { data, error } = await supabaseClient
+      .from('orders')
+      .select('*')
+      .eq('buyer_id', walletAddress);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    setTransactions(data);
+    return data;
+
+  }
 
   const queryProduct = async () => {
     try {
@@ -273,7 +463,7 @@ const Home = ({ setPage, setChainId, chainId, web3auth }: { setPage: (page: stri
 
       // Calculate total price
       const totalPrice = ethers.parseUnits(product.price, 18); // Adjust based on your product price
-      
+
       // Approve the ethay contract to spend USDT
       const approveTx = await usdtContract.approve(ethayContractAddress, totalPrice);
       await approveTx.wait();
@@ -301,7 +491,7 @@ const Home = ({ setPage, setChainId, chainId, web3auth }: { setPage: (page: stri
       const buyTx = await ethayContract.buyProduct(productId, quantity, referrerAddress);
       const receipt = await buyTx.wait();
       console.log("Purchase successful:", receipt);
-      if(receipt){
+      if (receipt) {
 
       }
     } catch (error) {
