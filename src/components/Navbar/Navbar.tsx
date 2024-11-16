@@ -8,6 +8,7 @@ import { usdContractAddress } from "../../constant/constant";
 import { useState, useEffect } from "react";
 import { parseEther } from "ethers";
 import { formatEther } from "../../Helpers/Helpers";
+import { numberWithCommas } from "../../Helpers/Helpers";
 
 const Navbar = ({ setPage, action, blockExplorerUrl, chainId, web3auth }: { setPage: (page: string) => void, action: string, blockExplorerUrl: string, chainId : string, web3auth: any }) => {
 
@@ -75,7 +76,7 @@ const Navbar = ({ setPage, action, blockExplorerUrl, chainId, web3auth }: { setP
             </div>
           </div>
           <div className="account-balance-box">
-            <p className="account-balance-text">Balance: {ethBalance} {chainConfig[chainId as keyof typeof chainConfig].nativeCurrency.symbol}, USD: {usdBalance} $</p>
+            <p className="account-balance-text">Balance: {ethBalance} {chainConfig[chainId as keyof typeof chainConfig].nativeCurrency.symbol}, USD: {numberWithCommas(usdBalance)} $</p>
           </div>
         </div>
       )}

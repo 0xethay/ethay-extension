@@ -9,6 +9,9 @@ interface JudgeHistoryCardProps {
     price: string;
     date: string;
     progress: number;
+    productId: string;
+    purchaseId: string;
+    ipfsLink: string;
     status: 'success' | 'pending' | 'failed';
     onClaim?: () => void;
 }
@@ -22,6 +25,9 @@ const JudgeHistoryCard: React.FC<JudgeHistoryCardProps> = ({
     date,
     progress,
     status,
+    productId,
+    purchaseId,
+    ipfsLink,
     onClaim
 }) => {
     return (
@@ -31,7 +37,7 @@ const JudgeHistoryCard: React.FC<JudgeHistoryCardProps> = ({
                     <div className="judge-image">
                         <img
                             src={
-                                "https://cdn.pixabay.com/photo/2020/09/28/04/44/hippopotamus-5608509_1280.jpg"
+                                `https://ipfs.io/ipfs/${ipfsLink}`
                             }
                             alt="tx-icon"
                             className="product-image"
@@ -39,6 +45,8 @@ const JudgeHistoryCard: React.FC<JudgeHistoryCardProps> = ({
                     </div>
                 </div>
                 <div className="judge-info">
+                    <p>Product ID: {productId}</p>
+                    <p>Purchase ID: {purchaseId}</p>
                     <p style={{ fontWeight: "bold" }}>Subject: {subject}</p>
                     <p>Description: {description}</p>
                     <p>Product Name: {productName}</p>
@@ -67,25 +75,6 @@ const JudgeHistoryCard: React.FC<JudgeHistoryCardProps> = ({
                             <span>{status}</span>
                         </div>
                     </div>
-                </div>
-            </div>
-            <div
-                style={{
-                    width: "100%",
-                    display: "flex",
-                    justifyContent: "center",
-                    marginBottom: "10px",
-                }}
-            >
-                <div
-                    style={{
-                        width: "95%",
-                        display: "flex",
-                        gap: "10px",
-                        justifyContent: "center",
-                    }}
-                >
-                    <button style={{ width: "100%", backgroundColor: status !== 'success' ? 'gray' : 'var(--primary-color)', cursor: status !== 'success' ? 'not-allowed' : 'pointer' }} onClick={onClaim} disabled={status !== 'success'}>Claim</button>
                 </div>
             </div>
         </div>

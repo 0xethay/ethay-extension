@@ -11,6 +11,7 @@ import { ethers } from "ethers";
 import { ethayContractAddress } from "../../constant/constant";
 import { parseEther } from "ethers";
 import { SupabaseClient } from "@supabase/supabase-js";
+import { toast } from "react-toastify";
 
 const Home = ({ setPage, setChainId, chainId, web3auth }: { setPage: (page: string) => void, setChainId: (chainId: string) => void, chainId: string, web3auth: any }) => {
   const [mode, setMode] = useState("cart");
@@ -19,6 +20,7 @@ const Home = ({ setPage, setChainId, chainId, web3auth }: { setPage: (page: stri
   const [products, setProducts] = useState<any[]>([]);
   const [judgeHistory, setJudgeHistory] = useState<any[]>([]);
   const [walletAddress, setWalletAddress] = useState<string>("");
+  const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
 
   const graphClient = new ApolloClient({
     uri: 'https://api.studio.thegraph.com/query/54090/ethay/version/latest',
@@ -261,7 +263,7 @@ const Home = ({ setPage, setChainId, chainId, web3auth }: { setPage: (page: stri
 
   const queryTransaction = async () => {
     const transactionQuery = `{
-      purchases(where: { buyer: "${localStorage.getItem("walletAddress")}" }) {
+      purchases(where: { buyer: "${localStorage.getItem('walletAddress')?.toLocaleLowerCase()}" }) {
         id
         product {
           id
@@ -395,7 +397,10 @@ const Home = ({ setPage, setChainId, chainId, web3auth }: { setPage: (page: stri
     setProducts(products.filter((product: any) => product.id !== id)); // Ensure id types match
   }
 
-  const handleReportClick = () => {
+  const handleReportClick = (productId: string, purchaseId: string, ipfsLink: string) => {
+    localStorage.setItem("reportProductId", productId);
+    localStorage.setItem("reportPurchaseId", purchaseId);
+    localStorage.setItem("reportIpfsLink", ipfsLink);
     setPage("report");
   }
 
@@ -443,6 +448,7 @@ const Home = ({ setPage, setChainId, chainId, web3auth }: { setPage: (page: stri
 
   const checkout = async (product: any) => {
     try {
+      setIsCheckoutLoading(true);
       console.log("handleCheckout...");
       const provider = new ethers.BrowserProvider(web3auth.provider);
       const signer = await provider.getSigner();
@@ -492,11 +498,17 @@ const Home = ({ setPage, setChainId, chainId, web3auth }: { setPage: (page: stri
       const receipt = await buyTx.wait();
       console.log("Purchase successful:", receipt);
       if (receipt) {
-
+        const extensionData = await (window as any).chrome.storage.local.get('extensionData');
+        const extensionDataItems = extensionData.extensionData;
+        const filteredItems = extensionDataItems.filter((item: any) => item.id.toString() !== productId)
+        await (window as any).chrome.storage.local.set({ extensionData: filteredItems });
+        setProducts(products.filter((product: any) => product.id !== productId));
+        setMode("order");
       }
     } catch (error) {
       console.error("Error in checkout:", error);
     }
+    setIsCheckoutLoading(false);
   };
 
   const handleCheckout = async () => {
@@ -564,8 +576,11 @@ const Home = ({ setPage, setChainId, chainId, web3auth }: { setPage: (page: stri
           Report History
         </button>
       </div>
-      {isLoading ? (
-        <img src={loading} alt="loading" />
+      {isLoading || isCheckoutLoading ? (
+        <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+          <img src={loading} alt="loading" />
+          {isCheckoutLoading && <div style={{ color: "var(--primary-color)" }}>checking out...</div>}
+        </div>
       ) : mode === "cart" ? (
         <div className="transaction-list">
           {products?.length > 0 ? (
@@ -599,8 +614,8 @@ const Home = ({ setPage, setChainId, chainId, web3auth }: { setPage: (page: stri
           )}
         </div>
       )}
-      <button onClick={handleMint}>Mint</button>
-      <button onClick={handleClearLocalStorage}>Clear Local Storage</button>
+      {/* <button onClick={handleMint}>Mint</button>
+      <button onClick={handleClearLocalStorage}>Clear Local Storage</button> */}
     </div>
   );
 };
