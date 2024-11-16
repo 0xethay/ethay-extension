@@ -15,7 +15,7 @@ function App() {
        {page === "home" ? (
           <Home setPage={setPage} setChainId={setChainId} chainId={chainId} web3auth={web3auth} />
         ) : page === "account" ? (
-          <Account setPage={setPage} chainId={chainId} />
+          <Account setPage={setPage} chainId={chainId} web3auth={web3auth} />
         ) : page === "report" ? (
           <Report setPage={setPage} web3auth={web3auth} chainId={chainId}/>
         ) : (

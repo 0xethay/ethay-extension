@@ -112,3 +112,4 @@ export const chainConfig = {
 };
 
 export const ethayContractAddress = "0x2612D031139ecC9F2FB6833409669e1392C82eFe";
+export const usdContractAddress = "0xa59bBfC6EbbbCd5E6Da1FfF36644a3E1D4744000";

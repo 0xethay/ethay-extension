@@ -1,7 +1,7 @@
 import "./TransactionCard.css";
 import copyIcon from "../../icons/copy.png";
 
-const TransactionCard = ({ tx, amount, when, id, address, status, name, blockExplorerUrl, handleReportClick }: { tx: string, amount: string, when: string, id: string, address: string, status: string, name: string, blockExplorerUrl: string, handleReportClick: () => void }) => {
+const TransactionCard = ({ tx, amount, when, id, address, status, name, blockExplorerUrl, handleReportClick, ipfsLink }: { tx: string, amount: string, when: string, id: string, address: string, status: string, name: string, blockExplorerUrl: string, handleReportClick: () => void, ipfsLink: string }) => {
   const badgeColor =
     status === "success"
       ? "#34D399"
@@ -17,6 +17,8 @@ const TransactionCard = ({ tx, amount, when, id, address, status, name, blockExp
     navigator.clipboard.writeText(tx);
   };
 
+  console.log("ipfsLink--", ipfsLink)
+
   return (
     <div className="transaction-card">
       <div className="transaction-box">
@@ -24,7 +26,7 @@ const TransactionCard = ({ tx, amount, when, id, address, status, name, blockExp
           <div className="transaction-image">
             <img
               src={
-                "https://cdn.pixabay.com/photo/2020/09/28/04/44/hippopotamus-5608509_1280.jpg"
+               `https://ipfs.io/ipfs/${ipfsLink}`
               }
               alt="tx-icon"
               className="product-image"

@@ -5,10 +5,11 @@ import { useState, useEffect } from "react";
 import loading from "../../icons/loading.svg"
 import TransactionCartCard from "../../components/TransactionCartCard/TransactionCartCard";
 import JudgeHistoryCard from "../../components/JudgeHistoryCard/JudgeHistoryCard";
-import { chainConfig } from "../../constant/constant";
+import { chainConfig, usdContractAddress } from "../../constant/constant";
 import { gql, ApolloClient, InMemoryCache } from '@apollo/client';
 import { ethers } from "ethers";
 import { ethayContractAddress } from "../../constant/constant";
+import { parseEther } from "ethers";
 
 const Home = ({ setPage, setChainId, chainId, web3auth }: { setPage: (page: string) => void, setChainId: (chainId: string) => void, chainId: string, web3auth: any }) => {
   const [mode, setMode] = useState("cart");
@@ -26,15 +27,19 @@ const Home = ({ setPage, setChainId, chainId, web3auth }: { setPage: (page: stri
     try {
       // Retrieve extension data from local storage
       const extensionData = await (window as any).chrome.storage.local.get('extensionData');
+      console.log("extensionData", extensionData)
 
       // Check if extensionData and items exist
-      if (!extensionData || !extensionData.extensionData || !extensionData.extensionData.item) {
+      if (!extensionData || !extensionData.extensionData) {
         console.error('No extension data found');
         return; // Exit if no data is found
       }
 
-      const extensionDataItems = extensionData.extensionData.item;
+      const extensionDataItems = extensionData.extensionData;
+
+      console.log("extensionDataItems", extensionDataItems)
       const mappedProducts = extensionDataItems.map((item: any) => item.id);
+      console.log("mappedProducts", mappedProducts)
 
       const tokenQuery = `{
             products(where: { id_in: [${mappedProducts.map((id: any) => `"${id}"`).join(", ")}] }) { 
@@ -51,10 +56,10 @@ const Home = ({ setPage, setChainId, chainId, web3auth }: { setPage: (page: stri
 
       const subgraph_data = await graphClient.query({ query: gql(tokenQuery) });
 
-      console.log('subgraph_data', subgraph_data?.data.products);
+      console.log('subgraph_data queryProduct', subgraph_data?.data.products);
 
       const productsWithAmounts = subgraph_data?.data.products.map((product: any) => {
-        const matchingItem = extensionDataItems.find((item: any) => item.id.toString() === product.id.toString());
+        const matchingItem = extensionDataItems.find((item: any) => item.id.toString() === product.id);
         return { ...product, amount: matchingItem ? matchingItem.amount : 0 };
       });
 
@@ -66,7 +71,7 @@ const Home = ({ setPage, setChainId, chainId, web3auth }: { setPage: (page: stri
 
   const queryTransaction = async () => {
     const transactionQuery = `{
-      purchases(where: { buyer: "0x0c328394a8208a4139f4419db20fa9825b62273f" }) {
+      purchases(where: { buyer: "${localStorage.getItem("walletAddress")}" }) {
         id
         product {
           id
@@ -127,6 +132,7 @@ const Home = ({ setPage, setChainId, chainId, web3auth }: { setPage: (page: stri
         address: product.seller.id,
         status: item.isConfirmed ? 'success' : 'waiting',
         name: product.name,
+        ipfsLink: product.ipfsLink,
         blockExplorerUrl: chainConfig[chainId as keyof typeof chainConfig].blockExplorerUrl,
         handleReportClick: () => console.log("Report clicked for tx", item.id),
       };
@@ -174,11 +180,15 @@ const Home = ({ setPage, setChainId, chainId, web3auth }: { setPage: (page: stri
   }, []);
 
 
+  //write code to clear local storage
+  const handleClearLocalStorage = async () => {
+    await (window as any).chrome.storage.local.clear();
+  }
 
   const handleRemoveClick = async (id: string) => {
     // Retrieve extension data from local storage
     const extensionData = await (window as any).chrome.storage.local.get('extensionData');
-    const extensionDataItems = extensionData.extensionData.item;
+    const extensionDataItems = extensionData.extensionData;
 
     // Log the current items for debugging
     console.log('Items before removal:', extensionDataItems);
@@ -189,7 +199,7 @@ const Home = ({ setPage, setChainId, chainId, web3auth }: { setPage: (page: stri
     console.log('Filtered items:', filteredItems);
 
     // Update local storage with the filtered items
-    await (window as any).chrome.storage.local.set({ extensionData: { item: filteredItems } });
+    await (window as any).chrome.storage.local.set({ extensionData: { filteredItems } });
 
     // Update the products state
     setProducts(products.filter((product: any) => product.id !== id)); // Ensure id types match
@@ -204,47 +214,117 @@ const Home = ({ setPage, setChainId, chainId, web3auth }: { setPage: (page: stri
     console.log("Extension data:", data);
   }
 
-  const handleCheckout = async () => {
+  const handleMint = async () => {
+    console.log("handleMint...")
+    const contractAddress = usdContractAddress;
+    const provider = new ethers.BrowserProvider(web3auth.provider);
+    const signer = await provider.getSigner();
+
+    const abi = [
+      {
+        inputs: [
+          {
+            internalType: "address",
+            name: "account",
+            type: "address"
+          },
+          {
+            internalType: "uint256",
+            name: "amount",
+            type: "uint256"
+          }
+        ],
+        name: "mint",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function"
+      }
+    ];
+
+    const contract = new ethers.Contract(contractAddress, abi, signer);
+    const account = localStorage.getItem("walletAddress");
+    const amount = parseEther("10000000000");
+    console.log("amount", amount)
+    console.log("account", account)
+    const tx = await contract.mint(account, amount);
+    const receipt = await tx.wait();
+    console.log("Transaction successful:", receipt);
+  }
+
+  const checkout = async (product: any) => {
     try {
+      console.log("handleCheckout...");
       const provider = new ethers.BrowserProvider(web3auth.provider);
-  
       const signer = await provider.getSigner();
-  
-      const contractABI = [
+
+      // 1. First approve USDT spending
+      const usdtContract = new ethers.Contract(usdContractAddress, [
+        {
+          inputs: [
+            { internalType: "address", name: "spender", type: "address" },
+            { internalType: "uint256", name: "amount", type: "uint256" }
+          ],
+          name: "approve",
+          outputs: [{ internalType: "bool", name: "", type: "bool" }],
+          stateMutability: "nonpayable",
+          type: "function"
+        }
+      ], signer);
+
+      // Calculate total price
+      const totalPrice = ethers.parseUnits(product.price, 18); // Adjust based on your product price
+      
+      // Approve the ethay contract to spend USDT
+      const approveTx = await usdtContract.approve(ethayContractAddress, totalPrice);
+      await approveTx.wait();
+      console.log("Approval successful");
+
+      // 2. Then call buyProduct
+      const ethayContract = new ethers.Contract(ethayContractAddress, [
         {
           inputs: [
             { internalType: "uint256", name: "_id", type: "uint256" },
             { internalType: "uint256", name: "_quantity", type: "uint256" },
-            { internalType: "address", name: "_referrer", type: "address" },
+            { internalType: "address", name: "_referrer", type: "address" }
           ],
           name: "buyProduct",
           outputs: [],
           stateMutability: "nonpayable",
-          type: "function",
-        },
-      ];
-  
-      const contractAddress = ethayContractAddress;
-  
-      const contract = new ethers.Contract(contractAddress, contractABI, signer);
-  
-      const productId = 1;
-      const quantity = 2;
-      const referrerAddress = "0xe219f46e0aa82c274ab9baf4de43ee5a0b9bb156"; 
-  
-      const tx = await contract.buyProduct(productId, quantity, referrerAddress);
-  
-      const receipt = await tx.wait();
-      console.log("Transaction successful:", receipt);
+          type: "function"
+        }
+      ], signer);
+
+      const productId = product.id;
+      const quantity = product.amount;
+      const referrerAddress = "0xe219f46e0aa82c274ab9baf4de43ee5a0b9bb156";
+
+      const buyTx = await ethayContract.buyProduct(productId, quantity, referrerAddress);
+      const receipt = await buyTx.wait();
+      console.log("Purchase successful:", receipt);
+      if(receipt){
+
+      }
     } catch (error) {
-      console.error("Error calling the contract:", error);
+      console.error("Error in checkout:", error);
     }
   };
-  
+
+  const handleCheckout = async () => {
+    products.forEach(async (product: any) => {
+      await checkout(product);
+    });
+  }
+
 
   const handleAmountChange = async (value: string, id: string) => {
     const extensionData = await (window as any).chrome.storage.local.get('extensionData');
-    const extensionDataItems = extensionData.extensionData.item;
+    let extensionDataItems = extensionData.extensionData || []; // Initialize as an empty array if undefined
+
+    // Ensure extensionDataItems is an array
+    if (!Array.isArray(extensionDataItems)) {
+      console.error("extensionDataItems is not an array:", extensionDataItems);
+      extensionDataItems = []; // Reset to an empty array if it's not
+    }
 
     if (value === "0") {
       handleRemoveClick(id);
@@ -252,8 +332,9 @@ const Home = ({ setPage, setChainId, chainId, web3auth }: { setPage: (page: stri
       const updatedItems = extensionDataItems.map((item: any) =>
         item.id.toString() === id ? { ...item, amount: value } : item
       );
-      await (window as any).chrome.storage.local.set({ extensionData: { item: updatedItems } });
-
+      console.log("updatedItems", updatedItems);
+      await (window as any).chrome.storage.local.set({ extensionData: updatedItems }); // Store updated items directly
+      console.log("product", products);
       const updatedProducts = products.map((product: any) =>
         product.id.toString() === id ? { ...product, amount: value } : product
       );
@@ -264,7 +345,7 @@ const Home = ({ setPage, setChainId, chainId, web3auth }: { setPage: (page: stri
 
   return (
     <div className="home-container">
-      <Navbar setPage={setPage} action="home" blockExplorerUrl={chainConfig[chainId as keyof typeof chainConfig].blockExplorerUrl} chainId={chainId} />
+      <Navbar setPage={setPage} action="home" blockExplorerUrl={chainConfig[chainId as keyof typeof chainConfig].blockExplorerUrl} chainId={chainId} web3auth={web3auth} />
       <div className="home-mode-buttons">
         <button
           className={
@@ -297,7 +378,7 @@ const Home = ({ setPage, setChainId, chainId, web3auth }: { setPage: (page: stri
         <img src={loading} alt="loading" />
       ) : mode === "cart" ? (
         <div className="transaction-list">
-          {products.length > 0 ? (
+          {products?.length > 0 ? (
             products.map((product: any) => (
               <TransactionCartCard key={product.id} {...product} amount={product.amount} handleRemoveClick={() => handleRemoveClick(product.id)} onAmountChange={handleAmountChange} />
             ))
@@ -309,7 +390,7 @@ const Home = ({ setPage, setChainId, chainId, web3auth }: { setPage: (page: stri
         </div>
       ) : mode === "order" ? (
         <div className="transaction-list">
-          {transactions.length > 0 ? (
+          {transactions?.length > 0 ? (
             transactions.map((transaction: any) => (
               <TransactionCard key={transaction.id} {...transaction} image={transaction.image} blockExplorerUrl={chainConfig[chainId as keyof typeof chainConfig].blockExplorerUrl} handleReportClick={handleReportClick} />
             ))
@@ -319,7 +400,7 @@ const Home = ({ setPage, setChainId, chainId, web3auth }: { setPage: (page: stri
         </div>
       ) : (
         <div className="transaction-list">
-          {judgeHistory.length > 0 ? (
+          {judgeHistory?.length > 0 ? (
             judgeHistory.map((history: any) => (
               <JudgeHistoryCard key={history.id} {...history} />
             ))
@@ -328,6 +409,8 @@ const Home = ({ setPage, setChainId, chainId, web3auth }: { setPage: (page: stri
           )}
         </div>
       )}
+      <button onClick={handleMint}>Mint</button>
+      <button onClick={handleClearLocalStorage}>Clear Local Storage</button>
     </div>
   );
 };

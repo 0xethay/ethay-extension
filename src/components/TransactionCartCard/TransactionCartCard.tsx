@@ -2,8 +2,8 @@ import "./TransactionCartCard.css";
 import copyIcon from "../../icons/copy.png";
 import removeIcon from "../../icons/remove.png";
 import { numberWithCommas } from "../../Helpers/Helpers";
-const TransactionCartCard = ({ amount, name, price, handleRemoveClick, onAmountChange, id }: { amount: string, name: string, price: string, handleRemoveClick: () => void, onAmountChange: (value: string, id: string) => void, id: string }) => {
-
+const TransactionCartCard = ({ amount, name, price, handleRemoveClick, onAmountChange, id, ipfsLink }: { amount: string, name: string, price: string, handleRemoveClick: () => void, onAmountChange: (value: string, id: string) => void, id: string, ipfsLink: string }) => {
+  console.log("ipfsLink", ipfsLink)
   return (
     <div className="transaction-card">
       <div className="transaction-box">
@@ -11,7 +11,7 @@ const TransactionCartCard = ({ amount, name, price, handleRemoveClick, onAmountC
           <div className="transaction-image">
             <img
               src={
-                "https://cdn.pixabay.com/photo/2020/09/28/04/44/hippopotamus-5608509_1280.jpg"
+                `https://ipfs.io/ipfs/${ipfsLink}`
               }
               alt="tx-icon"
               className="product-image"
