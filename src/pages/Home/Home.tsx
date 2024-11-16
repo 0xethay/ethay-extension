@@ -23,7 +23,7 @@ const Home = ({ setPage, setChainId, chainId, web3auth }: { setPage: (page: stri
   const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
 
   const graphClient = new ApolloClient({
-    uri: 'https://api.studio.thegraph.com/query/54090/ethay/version/latest',
+    uri: 'https://api.studio.thegraph.com/query/66235/ethay/version/latest',
     cache: new InMemoryCache(),
   });
 

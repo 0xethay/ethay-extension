@@ -111,5 +111,5 @@ export const chainConfig = {
     }
 };
 
-export const ethayContractAddress = "0x2612D031139ecC9F2FB6833409669e1392C82eFe";
-export const usdContractAddress = "0xa59bBfC6EbbbCd5E6Da1FfF36644a3E1D4744000";
+export const ethayContractAddress = "0xEA16f419A88E9d2b7425e5C611bf15116af1A4C1";
+export const usdContractAddress = "0x28aD5A6F6592Eaa2DaAf6d01c5Bcf71E0092dAf4";
