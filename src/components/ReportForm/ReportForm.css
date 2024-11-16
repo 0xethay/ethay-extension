@@ -41,6 +41,12 @@
     width: 100%;
 }
 
+.report-form-button:disabled {
+    background-color: #ccc;
+    color: #666;
+    cursor: not-allowed;
+}
+
 .report-form-white-button{
     width: 100%;
     background-color: white;

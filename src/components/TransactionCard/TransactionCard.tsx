@@ -1,5 +1,5 @@
 import './TransactionCard.css';
-import copyIcon from '../../icons/copy.png';
+import externalLinkIcon from '../../icons/external-link.png';
 import SupabaseClient from '@supabase/supabase-js/dist/module/SupabaseClient';
 
 const TransactionCard = ({ tx, amount, when, id, address, status, name, blockExplorerUrl, handleReportClick, ipfsLink, setReceive }: { tx: string, amount: string, when: string, id: string, address: string, status: string, name: string, blockExplorerUrl: string, handleReportClick: () => void, ipfsLink: string, setReceive: (id: string, address: string) => void }) => {
@@ -7,8 +7,8 @@ const TransactionCard = ({ tx, amount, when, id, address, status, name, blockExp
     status === 'success'
       ? '#34D399'
       : status === 'waiting'
-      ? '#FFAB00'
-      : '#FF5630';
+        ? '#FFAB00'
+        : '#FF5630';
 
   const truncateAddress = (address: string) => {
     return address.slice(0, 6) + '...' + address.slice(-4);
@@ -45,9 +45,9 @@ const TransactionCard = ({ tx, amount, when, id, address, status, name, blockExp
             </p>
             <div className='copy-icon-container'>
               <img
-                src={copyIcon}
+                src={externalLinkIcon}
                 alt='copy-icon'
-                onClick={copyTx}
+                onClick={() => window.open(blockExplorerUrl + 'tx/' + tx, '_blank')}
                 style={{ width: '8px', height: '8px', cursor: 'pointer' }}
               />
             </div>

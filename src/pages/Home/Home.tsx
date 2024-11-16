@@ -265,6 +265,9 @@ const Home = ({ setPage, setChainId, chainId, web3auth }: { setPage: (page: stri
     const transactionQuery = `{
       purchases(where: { buyer: "${localStorage.getItem('walletAddress')?.toLocaleLowerCase()}" }) {
         id
+        transactions {
+          id
+        }
         product {
           id
           name
@@ -317,7 +320,7 @@ const Home = ({ setPage, setChainId, chainId, web3auth }: { setPage: (page: stri
       const when = new Date(item.purchaseTime * 1000).toLocaleString();
 
       return {
-        tx: item.id,
+        tx: item.transactions[0].id,
         amount: (item.totalPrice / Math.pow(10, 18)).toFixed(2),
         when: when,
         id: item.id.toString(),
@@ -337,28 +340,24 @@ const Home = ({ setPage, setChainId, chainId, web3auth }: { setPage: (page: stri
 
   useEffect(() => {
 
-    const mockJudgeHistory = [
-      {
-        image: "https://cdn.pixabay.com/photo/2020/09/28/04/44/hippopotamus-5608509_1280.jpg",
-        subject: "Who is the best judge?",
-        description: "I think the judge is the best",
-        productName: "Product 1",
-        price: "100",
-        date: "2024-01-01",
-        progress: 50,
-        status: "success",
-      },
-      {
-        image: "https://cdn.pixabay.com/photo/2020/09/28/04/44/hippopotamus-5608509_1280.jpg",
-        subject: "Who is the best judge?",
-        description: "I think the judge is the best",
-        productName: "Product 1",
-        price: "100",
-        date: "2024-01-01",
-        progress: 50,
-        status: "pending",
-      }
-    ]
+    if (localStorage.getItem("reportIpfsLink") && localStorage.getItem("reportProductId") && localStorage.getItem("reportPurchaseId") && localStorage.getItem("reportProductName") && localStorage.getItem("reportPrice") && localStorage.getItem("reportDate")) {
+      console.log("mockJudgeHistory...")
+      const mockJudgeHistory = [
+        {
+          ipfsLink: `${localStorage.getItem("reportIpfsLink")}`,
+          productId: localStorage.getItem("reportProductId"),
+          purchaseId: localStorage.getItem("reportPurchaseId"),
+          subject: localStorage.getItem("reportSubject"),
+          description: localStorage.getItem("reportDescription"),
+          productName: localStorage.getItem("reportProductName"),
+          price: localStorage.getItem("reportPrice"),
+          date: localStorage.getItem("reportDate"),
+          progress: 50,
+          status: "pending",
+        },
+      ]
+      setJudgeHistory(mockJudgeHistory);
+    }
     const query = async () => {
       setIsLoading(true);
       const query = await queryProduct();
@@ -368,7 +367,6 @@ const Home = ({ setPage, setChainId, chainId, web3auth }: { setPage: (page: stri
     }
     query();
     queryTransaction();
-    setJudgeHistory(mockJudgeHistory);
   }, []);
 
 
@@ -398,6 +396,7 @@ const Home = ({ setPage, setChainId, chainId, web3auth }: { setPage: (page: stri
   }
 
   const handleReportClick = (productId: string, purchaseId: string, ipfsLink: string) => {
+    console.log("handleReportClick", productId, purchaseId, ipfsLink)
     localStorage.setItem("reportProductId", productId);
     localStorage.setItem("reportPurchaseId", purchaseId);
     localStorage.setItem("reportIpfsLink", ipfsLink);
@@ -591,13 +590,13 @@ const Home = ({ setPage, setChainId, chainId, web3auth }: { setPage: (page: stri
             <h1 style={{ color: "var(--primary-color)" }}>No products</h1>
           )}
           <button style={{ width: "100%" }} onClick={handleCheckout}>Checkout</button>
-          <button style={{ width: "100%" }} onClick={getExtensionData}>log</button>
+          {/* <button style={{ width: "100%" }} onClick={getExtensionData}>log</button> */}
         </div>
       ) : mode === "order" ? (
         <div className="transaction-list">
           {transactions?.length > 0 ? (
             transactions.map((transaction: any) => (
-              <TransactionCard key={transaction.id} {...transaction} image={transaction.image} blockExplorerUrl={chainConfig[chainId as keyof typeof chainConfig].blockExplorerUrl} handleReportClick={handleReportClick} />
+              <TransactionCard key={transaction.id} {...transaction} image={transaction.image} blockExplorerUrl={chainConfig[chainId as keyof typeof chainConfig].blockExplorerUrl} handleReportClick={() => handleReportClick(transaction.tx, transaction.id, transaction.ipfsLink)} />
             ))
           ) : (
             <h1 style={{ color: "var(--primary-color)" }}>No transactions</h1>
@@ -607,7 +606,7 @@ const Home = ({ setPage, setChainId, chainId, web3auth }: { setPage: (page: stri
         <div className="transaction-list">
           {judgeHistory?.length > 0 ? (
             judgeHistory.map((history: any) => (
-              <JudgeHistoryCard key={history.id} {...history} />
+              <JudgeHistoryCard key={history.id} {...history} blockExplorerUrl={chainConfig[chainId as keyof typeof chainConfig].blockExplorerUrl} />
             ))
           ) : (
             <h1 style={{ color: "var(--primary-color)" }}>No History</h1>

@@ -1,8 +1,7 @@
 import React from 'react';
 import './JudgeHistoryCard.css';
-
+import externalLinkIcon from '../../icons/external-link.png';
 interface JudgeHistoryCardProps {
-    image: string;
     subject: string;
     description: string;
     productName: string;
@@ -14,10 +13,10 @@ interface JudgeHistoryCardProps {
     ipfsLink: string;
     status: 'success' | 'pending' | 'failed';
     onClaim?: () => void;
+    blockExplorerUrl: string;
 }
 
 const JudgeHistoryCard: React.FC<JudgeHistoryCardProps> = ({
-    image,
     subject,
     description,
     productName,
@@ -28,8 +27,14 @@ const JudgeHistoryCard: React.FC<JudgeHistoryCardProps> = ({
     productId,
     purchaseId,
     ipfsLink,
-    onClaim
+    onClaim,
+    blockExplorerUrl
 }) => {
+  
+    const formatTx = (tx: string) => {
+        return tx.substring(0, 10) + '...' + tx.substring(tx.length - 10);
+    }
+    console.log("ipfsLink", `https://ipfs.io/ipfs/${ipfsLink}`)
     return (
         <div className="judge-card">
             <div className="judge-box">
@@ -45,9 +50,9 @@ const JudgeHistoryCard: React.FC<JudgeHistoryCardProps> = ({
                     </div>
                 </div>
                 <div className="judge-info">
-                    <p>Product ID: {productId}</p>
-                    <p>Purchase ID: {purchaseId}</p>
                     <p style={{ fontWeight: "bold" }}>Subject: {subject}</p>
+                    <p>Tx: <a href={`${blockExplorerUrl}tx/${productId}`} target="_blank" rel="noopener noreferrer">{formatTx(productId)} <img src={externalLinkIcon} style={{ width: "12px", height: "12px", cursor: "pointer" }} alt="external-link-icon" className="external-link-icon" /></a></p>
+                    <p>ID: {purchaseId}</p>
                     <p>Description: {description}</p>
                     <p>Product Name: {productName}</p>
                     <p>Price: {price}</p>

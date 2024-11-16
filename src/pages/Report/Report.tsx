@@ -6,7 +6,7 @@ const Report = ({ setPage, chainId, web3auth}: { setPage: (page: string) => void
     return (
         <div className="report-container">
             <Navbar setPage={setPage} action="report" blockExplorerUrl={chainConfig[chainId as keyof typeof chainConfig].blockExplorerUrl} chainId={chainId} web3auth={web3auth} />
-            <ReportForm setPage={setPage} />
+            <ReportForm setPage={setPage} web3auth={web3auth} />
         </div>
     )
 }
