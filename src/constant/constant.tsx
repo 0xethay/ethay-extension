@@ -110,3 +110,5 @@ export const chainConfig = {
         logo: "https://cryptologos.cc/logos/flow-flow-logo.png"
     }
 };
+
+export const ethayContractAddress = "0x2612D031139ecC9F2FB6833409669e1392C82eFe";
