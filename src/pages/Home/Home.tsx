@@ -478,6 +478,7 @@ const Home = ({ setPage, setChainId, chainId, web3auth }: { setPage: (page: stri
       const ethayContract = new ethers.Contract(ethayContractAddress, [
         {
           inputs: [
+            { internalType: "address", name: "_buyer", type: "address" },
             { internalType: "uint256", name: "_id", type: "uint256" },
             { internalType: "uint256", name: "_quantity", type: "uint256" },
             { internalType: "address", name: "_referrer", type: "address" }
@@ -493,7 +494,7 @@ const Home = ({ setPage, setChainId, chainId, web3auth }: { setPage: (page: stri
       const quantity = product.amount;
       const referrerAddress = "0xe219f46e0aa82c274ab9baf4de43ee5a0b9bb156";
 
-      const buyTx = await ethayContract.buyProduct(productId, quantity, referrerAddress);
+      const buyTx = await ethayContract.buyProduct(localStorage.getItem("walletAddress"), productId, quantity, referrerAddress);
       const receipt = await buyTx.wait();
       console.log("Purchase successful:", receipt);
       if (receipt) {

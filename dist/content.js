@@ -101,7 +101,7 @@ function checkForTags() {
 
           // Set iframe source based on type
           if (type === "web2") {
-            iframe.src = `http://localhost:3000/product${
+            iframe.src = `https://ethaypostdev.vercel.app/product${
               queryString ? `?${queryString}` : ""
             }`;
           } else {
